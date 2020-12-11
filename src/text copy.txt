@@ -1,0 +1,12 @@
+
+TEXT=$'an inward squish with neural time steps
+        Asynchronous Variational Integrator 
+        Dormand–Prince Method
+        
+        Undamped Neohookean Model
+        mu 1.0  lambda 1.0 gamma 0.0
+        
+        Spherical Mesh
+        Num. Vertices 583
+        Num. Elements 2688
+'
