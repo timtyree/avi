@@ -6,7 +6,7 @@ def get_one_step_forward_euler_method(mu,lam,gamma):
 	compute_one_step_forward_euler_method=get_compute_one_step_forward_euler_method(mu,lam,gamma)
 	zero_mat = np.zeros((4,3))
 	@njit
-	def one_step_forward_euler_method(t, K_index, element_array_index, tauK, tau, 
+	def one_step_forward_euler_method(t, K_index, element_array_index, tauK, tau,
 									  vertices, velocities, node_array_mass, element_array_inverse_equilibrium_position):
 		#compute the namespace of the force computation of the elemental configuration
 		Ka = element_array_index[K_index]
@@ -24,13 +24,13 @@ def get_one_step_forward_euler_method(mu,lam,gamma):
 		# #update node's time
 		# tau[Ka] = t
 		return K_vertices, K_velocities
-	
+
 	return one_step_forward_euler_method
 
 
 def get_compute_one_step_forward_euler_method(mu,lam,gamma):
 	compute_force = get_compute_force(mu,lam,gamma)
-	
+
 	@njit
 	def compute_one_step_forward_euler_method(t, K_vertices, K_velocities, K_masses, K_tau, tau_of_K, Bm, zero_mat):
 		'''integrates the inputed element configuration up tot time t.  element time is not updated by this function.
@@ -38,6 +38,8 @@ def get_compute_one_step_forward_euler_method(mu,lam,gamma):
 		Na = 4 # number of tetrahedral nodes, which is 4
 		# t, K_index, vertices, velocities, Ka, tau, tauK, elements, element_array_inverse_equilibrium_position, zero_mat, node_array_mass):
 		#         Delta_x = np.multiply (K_velocities , (t - K_tau))
+		#update a copy of the velocities to next time
+
 		for a in range(Na):
 			K_vertices[a] += K_velocities[a] * (t - K_tau[a]) #+ Delta_x[a]
 			# K_vertices[a] = K_vertices[a] + K_velocities[a] * (t - K_tau[a]) #+ Delta_x[a]
@@ -47,11 +49,16 @@ def get_compute_one_step_forward_euler_method(mu,lam,gamma):
 		# #update node times
 		# for a in range(Na):
 		# 	K_tau[a] = t
-		#compute the nodal forces for the tetrahedral element
+
+		# #but with what acceleration do I define the rate of change of velocity? Which t^* is correct? Let's say the next one.
+		# v = K_velocities.copy()
+		# K_velocities[a] += K_accelerations[a] * (t - K_tau[a])
+
+		#compute the nodal forces for the tetrahedral element at the next time
 		force = compute_force(K_velocities, Ds, K_W, Bm, zero_mat.copy())
 		# force = compute_force(K_velocities, Ds, K_W, Bm, zero_mat) #is this faster? also doesn't update zero_mat?
 		#        Delta_v = np.multiply ( (t - tau_of_K) / K_masses , force )
-		#update node velocities 
+		#update node velocities
 		for a in range(Na):
 			K_velocities[a] += (t - tau_of_K) / K_masses[a] * force[a] #+ Delta_v[a]
 			# K_velocities[a] = K_velocities[a] + (t - tau_of_K) / K_masses[a] * force[a] #+ Delta_v[a]
@@ -96,7 +103,7 @@ def get_compute_one_step_map_forward_euler(mu,lam):
 		#net nodal forces
 		force = f
 		Delta_v = np.multiply ( (t - tau_of_K) / K_masses , force )
-		#update node velocities 
+		#update node velocities
 		for a in range(Na):
 			K_velocities[a] = K_velocities[a] + Delta_v[a]
 		#update element's time
@@ -122,7 +129,7 @@ def get_one_step_forward_euler_simplified(mu,lam):
 		#TODO(later): include any other forces, such as nodal forces, pressure forces, etc.
 		#net nodal forces
 		force = f
-		#update node velocities 
+		#update node velocities
 		for a in range(Na):
 			K_velocities[a] = K_velocities[a] + ( (t - tau_of_K) / K_masses[a]) * force[a]
 		#TODO(later): if node is not a boundary node, set velocity to zero
@@ -130,7 +137,7 @@ def get_one_step_forward_euler_simplified(mu,lam):
 	return one_step_forward_euler_simplified
 
 # @njit
-def one_step_forward_euler_bulky(t, K_index, vertices, velocities, Ka, tau, tauK, elements, 
+def one_step_forward_euler_bulky(t, K_index, vertices, velocities, Ka, tau, tauK, elements,
 	element_array_inverse_equilibrium_position, zero_mat, node_array_mass):
 	'''doesn't update times for nodes or elements'''
 	for a in Ka:
@@ -142,7 +149,7 @@ def one_step_forward_euler_bulky(t, K_index, vertices, velocities, Ka, tau, tauK
 	#TODO(later): include any other forces, such as nodal forces, pressure forces, etc.
 	#net nodal forces
 	force = f
-	#update node velocities 
+	#update node velocities
 	for j, a in enumerate(Ka):
 		velocities[a] = velocities[a] + ( (t - tauK[K_index]) / node_array_mass[a]) * force[j]
 	#TODO(later): if node is not a boundary node, set velocity to zero
@@ -156,7 +163,7 @@ def one_step_forward_euler_bulky(t, K_index, vertices, velocities, Ka, tau, tauK
 # #update node positions
 # Ka = elements[K_index]
 # K_vertices = vertices[Ka]
-# vertices, velocities = one_step_forward_euler_bulky(t, K_index, Ka, vertices, velocities, tau, tauK, 
+# vertices, velocities = one_step_forward_euler_bulky(t, K_index, Ka, vertices, velocities, tau, tauK,
 # 	elements, element_array_inverse_equilibrium_position, zero_mat, node_array_mass)
 # #update node times
 # for a in Ka:
@@ -180,13 +187,10 @@ def one_step_forward_euler_bulky(t, K_index, vertices, velocities, Ka, tau, tauK
 # Ds  = get_D_mat(K_vertices)
 # Bm  = element_array_inverse_equilibrium_position[K_index]
 # K_W = get_element_volume(Ds)
-# K_vertices, K_velocities = one_step_forward_euler_simplified(t, K_vertices, K_velocities, 
+# K_vertices, K_velocities = one_step_forward_euler_simplified(t, K_vertices, K_velocities,
 # 	K_masses, K_tau, tau_of_K, Ds, Bm, K_W, zero_mat)
 # #TODO(later): if node is a boundary node, set velocity to zero
 # #update element's time
 # tauK[K_index] = t
 # #compute next time for element's evaluation
 # tKnext = t + stepsize #_compute_next_time(K, t, stepsize)
-
-
-

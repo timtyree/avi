@@ -62,6 +62,7 @@ def plot_mesh(vertices, faces=None, input_file_name=None, darkmode = True, backg
 	_cpos, img = plotter.show(title=None, return_img=True, cpos=cpos, window_size=window_size, use_ipyvtk = False, interactive=False, auto_close=True);
 	plotter.deep_clean()
 	del plotter
+	pv.close_all()
 	return img
 
 def get_img_of_system(vertices, input_file_name, **kwargs):

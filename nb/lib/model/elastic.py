@@ -26,7 +26,7 @@ def get_calc_P_neohookean(mu, lam):
 	def calc_P(F):
 		FT = np.linalg.inv(F.T)
 		J = np.linalg.det(F)
-		P = mu * (F - mu * FT) + lam * np.log(J) * FT
+		P = mu * (F - FT) + lam * np.log(J) * FT
 		return P
 	return calc_P
 

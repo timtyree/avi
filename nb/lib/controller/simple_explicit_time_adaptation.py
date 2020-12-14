@@ -4,14 +4,23 @@ from . import *
 
 def get_step_forward_and_learn_simple(mu,lam,gamma):
 	zero_mat = np.zeros((4,3))
-	def get_step_to_time(mu,lam,gamma,num_iter = 30):
-		# step_to_time = get_local_one_step_implicit_midpoint_rule(mu,lam,gamma,num_iter = 30)
-		step_to_time   = get_compute_one_step_forward_euler_method(mu,lam,gamma)
-		# step_to_time = get_one_step_forward_euler_method(mu,lam,gamma)
-		return step_to_time
+	mode='explicit'
+	if mode=='explicit':
+		def get_step_to_time(mu,lam,gamma,num_iter = 30):
+			# step_to_time = get_local_one_step_implicit_midpoint_rule(mu,lam,gamma,num_iter = 30)
+			step_to_time   = get_compute_one_step_forward_euler_method(mu,lam,gamma)
+			# step_to_time = get_one_step_forward_euler_method(mu,lam,gamma)
+			return step_to_time
+	else:
+		def get_step_to_time(mu,lam,gamma,num_iter = 30):
+			step_to_time = get_local_one_step_implicit_midpoint_rule(mu,lam,gamma,num_iter = 30)
+			# step_to_time   = get_compute_one_step_forward_euler_method(mu,lam,gamma)
+			# step_to_time = get_one_step_forward_euler_method(mu,lam,gamma)
+			return step_to_time
 	step_to_time = get_step_to_time(mu,lam,gamma)
+
 	@njit
-	def step_forward_and_learn_simple(K_index, t_given, node_array_time, element_array_time, vertices, velocities, element_array_index, 
+	def step_forward_and_learn_simple(K_index, t_given, node_array_time, element_array_time, vertices, velocities, element_array_index,
 	                           element_array_inverse_equilibrium_position, node_array_mass, atol_x, atol_v, btol_x, btol_v, learning_rate
 	                          ):
 	    Ka = element_array_index[K_index]
@@ -68,14 +77,14 @@ def get_step_forward_and_learn_simple(mu,lam,gamma):
 	    mad_vBA = np.max(np.abs(v_B-v_A))
 	    madval = (mad_xBA, mad_vBA)
 	    retval = (x_B.copy(), v_B.copy(), K_tau_B.copy(), tau_of_K_B)
-	    # NOTE: if either of ^these values are above some threshold, 
+	    # NOTE: if either of ^these values are above some threshold,
 	    # then decrease the stepsize and restart the onestep method to be safe.
 	    if (mad_xBA > atol_x) | (mad_vBA > atol_v):
-	        #TODO: restart the algorithm with half the stepsize and return the result 
+	        #TODO: restart the algorithm with half the stepsize and return the result
 	        # print('TODO: restart the algorithm with half the stepsize and return the result')
 	        # retval = (x_A.copy(), v_A.copy(), K_tau_A.copy(), tau_of_K_A)
 	        # next_stepsize = DT_lesser
-	        # next_stepsize, retval, madval = step_forward_and_learn_simple(K_index, t_lesser, node_array_time, element_array_time, vertices, velocities, element_array_index, 
+	        # next_stepsize, retval, madval = step_forward_and_learn_simple(K_index, t_lesser, node_array_time, element_array_time, vertices, velocities, element_array_index,
 	        #                    element_array_inverse_equilibrium_position, node_array_mass, atol_x, atol_v, btol_x, btol_v, learning_rate)
 	        next_stepsize = DT_lesser
 	    elif (mad_xBA < btol_x) & (mad_vBA < btol_v):
@@ -83,6 +92,6 @@ def get_step_forward_and_learn_simple(mu,lam,gamma):
 	        next_stepsize = DT_greater
 	    else:
 	    	next_stepsize = DT_given
-	    return next_stepsize, retval, madval    
+	    return next_stepsize, retval, madval
 
 	return step_forward_and_learn_simple

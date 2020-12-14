@@ -10,7 +10,7 @@ def get_step_forward_and_learn(mu,lam,gamma,num_iter = 30):
 		# step_to_time = get_one_step_forward_euler_method(mu,lam,gamma)
 		return step_to_time
 	step_to_time = get_step_to_time(mu,lam,gamma,num_iter = num_iter)
-	# @njit 
+	@njit 
 	def step_forward_and_learn(K_index, t_given, node_array_time, element_array_time, vertices, velocities, element_array_index,
 	                           element_array_inverse_equilibrium_position, node_array_mass, atol_x, atol_v
 	                          ):
@@ -71,14 +71,14 @@ def get_step_forward_and_learn(mu,lam,gamma,num_iter = 30):
 	    # compute the max absolute difference (mad) in position and velocity between the two step sizes
 	    mad_xBA = np.max(np.abs(x_B-x_A))
 	    mad_vBA = np.max(np.abs(v_B-v_A))
-	    # NOTE: if either of ^these values are above some threshold, 
+	    # NOTE: if either of ^these values are above some threshold,
 	    # then decrease the stepsize and restart the onestep method to be safe.
 	    if (mad_xBA > atol_x) | (mad_vBA > atol_v):
-	        #TODO: restart the algorithm with half the stepsize and return the result 
+	        #TODO: restart the algorithm with half the stepsize and return the result
 	        # print('TODO: restart the algorithm with half the stepsize and return the result')
 	        # retval = (x_A.copy(), v_A.copy(), K_tau_A.copy(), tau_of_K_A)
 	        # next_stepsize = DT_lesser
-	        next_stepsize, retval, madval = step_forward_and_learn(K_index, t_lesser, node_array_time, element_array_time, vertices, velocities, element_array_index, 
+	        next_stepsize, retval, madval = step_forward_and_learn(K_index, t_lesser, node_array_time, element_array_time, vertices, velocities, element_array_index,
 	                           element_array_inverse_equilibrium_position, node_array_mass, atol_x, atol_v)
 	        return next_stepsize, retval, madval
 	    else:
@@ -107,11 +107,11 @@ def get_step_forward_and_learn(mu,lam,gamma,num_iter = 30):
 	    # compute the max absolute difference (mad) in position and velocity between the two step sizes
 	    mad_xCB = np.max(np.abs(x_C-x_B))
 	    mad_vCB = np.max(np.abs(v_C-v_B))
-	    # NOTE: if either of ^these values are below some threshold, 
-	    #     then you may consider increasing the stepsize and using this result.  
+	    # NOTE: if either of ^these values are below some threshold,
+	    #     then you may consider increasing the stepsize and using this result.
 	    #     Don`t bother restarting the one step method.
 	    if (mad_xCB < atol_x) & (mad_vCB < atol_v):
-	        #restart the algorithm with double the stepsize and return the result 
+	        #restart the algorithm with double the stepsize and return the result
 	        #OR simply return the result for case C
 	        retval = (x_C.copy(), v_C.copy(), K_tau_C.copy(), tau_of_K_C, )
 	        next_stepsize = DT_greater

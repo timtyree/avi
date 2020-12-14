@@ -44,7 +44,7 @@ def get_one_step_explicit_dormand_prince_method(mu,lam,gamma):
 	# def f(t,x,v,K_tau,tau_of_K,K_masses,Bm,zero_mat):
 	#     x_out, v_out = compute_one_step_forward_euler_method(t,x,v,K_masses,K_tau,tau_of_K,Bm,zero_mat)
 	#     return x_out, v_out
-	@njit 
+	@njit
 	def f(t, x, v, Bm, K_masses):
 		dxdt, dvdt = compute_flow_map(x, v, Bm, K_masses)
 		return dxdt, dvdt
@@ -86,7 +86,7 @@ def get_one_step_explicit_dormand_prince_method(mu,lam,gamma):
 			.. [2] L. W. Shampine, "Some Practical Runge-Kutta Formulas", Mathematics
 				   of Computation,, Vol. 46, No. 173, pp. 135-150, 1986.
 			"""
-		
+
 		#synchronize the positions of the nodes to the same time
 		#t = max(np.max(K_tau), tau_of_K)
 		#TODO: try this --> t = tau_of_K + h
@@ -135,7 +135,7 @@ def get_one_step_explicit_dormand_prince_method(mu,lam,gamma):
 		max_err = np.max(np.abs(x_err))
 		mav_err = np.max(np.abs(v_err))#*h
 
-		return max_err, mav_err, x_out,v_out
+		return max_err, mav_err, x_out,v_out,x_err,v_err
 	return one_step_explicit_dormand_prince_method
 
 #######################################

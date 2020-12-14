@@ -11,7 +11,7 @@ def get_integrate_system_dormand_prince_synchronous(mu,lam,gamma):
 	one_step_explicit_dormand_prince_method = get_one_step_explicit_dormand_prince_method(mu,lam,gamma)
 	@njit
 	def integrate_system_dormand_prince_synchronous(tf, element_array_time, element_array_stepsize, node_array_time,
-											 element_array_index, vertices, velocities, 
+											 element_array_index, vertices, velocities,
 										  node_array_mass, element_array_inverse_equilibrium_position, element_array_mass):#, minstepsize):
 		"""
 		Integrate up to time tf with synchronous forward integration using the dormand prince method.
@@ -39,7 +39,7 @@ def get_integrate_system_dormand_prince_synchronous(mu,lam,gamma):
 				tau_of_K = element_array_time[K_index]
 				K_tau = tau[Ka].copy()
 				K_masses = element_array_mass[Ka]
-				max_err, mav_err, x_out,v_out = one_step_explicit_dormand_prince_method(h,x,v,K_masses,K_tau,tau_of_K,Bm)
+				max_err, mav_err, x_out,v_out,x_err,y_err = one_step_explicit_dormand_prince_method(h,x,v,K_masses,K_tau,tau_of_K,Bm)
 
 				#update the element configuration
 				vertices[Ka] = x_out
@@ -54,7 +54,7 @@ def get_integrate_system_dormand_prince_synchronous(mu,lam,gamma):
 
 				#push the next task to the heap/priority queue
 				heapq.heappush(queue, (t_next, stepsize_next, K_index))
-		
+
 		return True
-		
+
 	return integrate_system_dormand_prince_synchronous

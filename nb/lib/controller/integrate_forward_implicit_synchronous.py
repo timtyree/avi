@@ -11,7 +11,7 @@ def get_integrate_system_implicit_synchronous(mu,lam,gamma,num_iter=30):
     one_step_implicit_midpoint_rule = get_one_step_implicit_midpoint_rule(mu,lam,gamma,num_iter=num_iter)
     @njit
     def integrate_system_implicit_synchronous(tf, element_array_time, element_array_stepsize, node_array_time,
-                                             element_array_index, vertices, velocities, 
+                                             element_array_index, vertices, velocities,
                                           node_array_mass, element_array_inverse_equilibrium_position):
         """
         Integrate up to time tf with synchronous forward euler integration.
@@ -31,9 +31,9 @@ def get_integrate_system_implicit_synchronous(mu,lam,gamma,num_iter=30):
                 #TODO: for each stepcase: #(for the purpose of comparing each stepcase)
                 #TODO: update the configuration arrays of each stepcase with the configuration for this element
                 #timestep the configuration with forward euler integration
-                K_vertices, K_velocities = one_step_implicit_midpoint_rule(t, K_index, element_array_index, 
-                                              tauK, tau, vertices, velocities, 
-                                              node_array_mass, 
+                K_vertices, K_velocities = one_step_implicit_midpoint_rule(t, K_index, element_array_index,
+                                              tauK, tau, vertices, velocities,
+                                              node_array_mass,
                                               element_array_inverse_equilibrium_position)
 
 

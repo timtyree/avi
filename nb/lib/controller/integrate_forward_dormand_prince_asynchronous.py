@@ -13,6 +13,8 @@ def get_compute_next_stepsize_neural_learning_rate(atol_x, atol_v, btol_x, btol_
 	@njit
 	def compute_next_stepsize_neural_learning_rate(h, learning_rate, max_err,mav_err,energy_next, energy_prev):
 		Delta_energy = energy_next - energy_prev
+		scale_for_Delta_energy = 8e-04#2e-04 apparent scales for time steps of order h = 0.001
+		Delta_energy /= scale_for_Delta_energy
 		loss = (1.-lasso_fraction) * Delta_energy**2 + lasso_fraction * np.abs(Delta_energy)
 		booa = (max_err>atol_x)|(mav_err>atol_v)
 		boob = (max_err<btol_x)&(mav_err<btol_v)
@@ -29,8 +31,7 @@ def get_compute_next_stepsize_neural_learning_rate(atol_x, atol_v, btol_x, btol_
 		return next_stepsize
 	return compute_next_stepsize_neural_learning_rate
 
-
-def get_compute_next_stepsize_fixed_learning_rate(atol_x, atol_v, btol_x, btol_v, learning_rate):
+def get_compute_next_stepsize_fixed_learning_rate(atol_x, atol_v, btol_x, btol_v, learning_ratess):
 
 	@njit
 	def compute_next_stepsize_fixed_learning_rate(h, learning_rate, max_err,mav_err,energy_next, energy_prev):
@@ -50,10 +51,13 @@ def get_compute_next_stepsize_fixed_learning_rate(atol_x, atol_v, btol_x, btol_v
 	return compute_next_stepsize_fixed_learning_rate
 
 def get_integrate_system_dormand_prince_asynchronous(mu,lam,gamma,atol_x, atol_v, btol_x, btol_v,learning_rate, lasso_fraction):
+	mode='fixed_lr'#'neural_lf'#
 	one_step_explicit_dormand_prince_method = get_one_step_explicit_dormand_prince_method(mu,lam,gamma)
-	compute_next_stepsize = get_compute_next_stepsize_neural_learning_rate(atol_x, atol_v, btol_x, btol_v,lasso_fraction)
-	# compute_next_stepsize = get_compute_next_stepsize_fixed_learning_rate(atol_x, atol_v, btol_x, btol_v, learning_rate)
-	
+	if mode=='fixed_lr':
+		compute_next_stepsize = get_compute_next_stepsize_fixed_learning_rate(atol_x, atol_v, btol_x, btol_v, learning_rate)
+	else:
+		compute_next_stepsize = get_compute_next_stepsize_neural_learning_rate(atol_x, atol_v, btol_x, btol_v,lasso_fraction)
+
 	@njit
 	def integrate_system_dormand_prince_asynchronous(tf, element_array_time, element_array_stepsize, node_array_time,
 											 element_array_index, vertices, velocities,
@@ -90,33 +94,36 @@ def get_integrate_system_dormand_prince_asynchronous(mu,lam,gamma,atol_x, atol_v
 				W = get_element_volume(Ds)
 				mass_of_K  = element_array_mass[K_index]
 
-				#compute energy of configuration
-				energy_prev = comp_element_energy ( mass_of_K, v, W, Bm, Ds, mu, lam)
+				# #compute energy of configuration
+				# energy_prev = comp_element_energy ( mass_of_K, v, W, Bm, Ds, mu, lam)
 
 				#perform the OneStep method
-				max_err, mav_err, x_out,v_out = one_step_explicit_dormand_prince_method(h,x,v,K_masses,K_tau,tau_of_K,Bm)
+				max_err, mav_err, x_out,v_out,x_err,v_err = one_step_explicit_dormand_prince_method(h,x,v,K_masses,K_tau,tau_of_K,Bm)
 
 
 
 				#update the element configuration
-				vertices[Ka] = x_out
-				velocities[Ka] = v_out
+				vertices[Ka] = x_err#x_out
+				velocities[Ka] = v_err#v_out
 				tauK[K_index] = t
 				tau[Ka] = t
-
-				x = vertices[Ka].copy()
-				v = velocities[Ka].copy()
-				tau_of_K = tauK[K_index]
-				K_tau = tau[Ka].copy()
 				K_masses = element_array_mass[Ka]
-				Ds = get_D_mat(x)
-				W = get_element_volume(Ds)
+				# x = vertices[Ka].copy()
+				# v = velocities[Ka].copy()
+				# tau_of_K = tauK[K_index]
+				# K_tau = tau[Ka].copy()
 
 				#compute energy of configuration
-				energy_next = comp_element_energy ( mass_of_K, v, W, Bm, Ds, mu, lam)
+				Ds = get_D_mat(x_out)
+				W = get_element_volume(Ds)
+				energy_d = comp_element_energy ( mass_of_K, v_out, W, Bm, Ds, mu, lam)
 
+				#compute energy of configuration
+				Ds = get_D_mat(x_err)
+				W = get_element_volume(Ds)
+				energy_e = comp_element_energy ( mass_of_K, v_err, W, Bm, Ds, mu, lam)
 				#choose the next stepsizeh, learning_rate, max_err,mav_err,energy_next, energy_prev
-				stepsize_next = compute_next_stepsize(element_array_stepsize[K_index], learning_rate, max_err,mav_err,energy_next, energy_prev)
+				stepsize_next = compute_next_stepsize(element_array_stepsize[K_index], learning_rate, max_err,mav_err,energy_d,energy_e)#,energy_next, energy_prev)
 				t_next = t + stepsize_next
 				element_array_stepsize[K_index] = stepsize_next
 
