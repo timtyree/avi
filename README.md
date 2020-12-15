@@ -7,5 +7,4 @@ functionality is in `nb/lib/`
 
 To use machine learning to speed up computational mechanics, see "Future Directions" in the associated report (see `doc/Final\ Report.pdf`).
 
-Best,
-Tim
+best, tim
