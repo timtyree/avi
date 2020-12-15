@@ -5,6 +5,6 @@ visualisations are accessable in `doc/mov/`
 
 functionality is in `nb/lib/`
 
-To use machine learning to speed up computational mechanics, see "Future Directions" in the associated report (see `doc/Final\ Report.pdf`).
+To use machine learning to speed up computational mechanics, see "Future Directions" in the associated report (see `doc/Final_Report_Adaptivly_Boosted_Time_Steps.pdf`).
 
 best, tim
