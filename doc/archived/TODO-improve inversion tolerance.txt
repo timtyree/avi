@@ -1,0 +1,2 @@
+- TODO: can I use np.asarray_chkfinite to make avi fault tolerant to inversions?  When would this check invalidate results that are otherwise valid? Never.
+

@@ -1,0 +1,13 @@
+todo.txt for davi/
+DONE(ish): make a repository for davi
+
+in an .ipynb, test the correctness of an avi,
+TODO: test/develop onestep(system) with explicit.py on a simplest use case my RA mesh/spherical mechanical system
+TODO: collect ^those efforts into simplest explicit avi with 4 substeps per synchronous onestep. test against problem with known solution governed by the Hamilton's principle of least action
+TODO: test against problem with known solution governed by the Lagrande-D'Alembert principle, that is dissipative
+in an .ipynb, test the correctness of davi,
+
+
+in an .ipynb, test the correctness of an avi
+TODO:  use/test/develop priority queue to represent my RA mesh system.  
+Hint: use btree.py or the existing queue .py file

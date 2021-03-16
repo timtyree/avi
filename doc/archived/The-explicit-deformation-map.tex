@@ -1,0 +1,29 @@
+The explicit deformation map is
+
+$$\vec{x}= \vec{\phi}(\vec{X}; \vec{x})= \mathbf{F}(\vec{X}; \vec{x})\cdot \vec{X} + \vec{b}(\vec{X}; \vec{x})$$
+
+where
+
+$$\mathbf{F}(\vec{X}; \vec{x}) = \mathbf{S}\cdot\mathbf{R}$$ 
+and 
+$$\vec{b}(\vec{X}; \vec{x}) = tris[0] - \mathbf{F}(\vec{X}; \vec{x}) \cdot trim[0].$$
+
+$S$ this is all that's needed to compute the elastic force for a given constitutive relation that's homogeneous and isotropic.  We suppose rotational invariance in the following elastic energy density:
+
+$$
+\Psi(F=SR) = \mu||S-\mathbb{1}||^2 + \frac{\lambda}{2}\text{tr}^2(S-\mathbb{1})
+$$
+
+Where $\mu$ and $\lambda$ are the first and second Lamé parameters, measuring resistance to stretching/shearing and volume change, respectively.
+
+It can be shown this results in the following first Piola-Kirchoff stress tensor:
+
+$$
+\mathbf{P}(\mathbf{F})= 2\mu(\mathbf{S}-\mathbb{1})\mathbf{R} + \lambda \text{tr}(\mathbf{S}-\mathbb{1})\mathbf{R}
+$$
+
+There is the following conversion from Young's modulus, $k$, and Poisson's ratio, $\nu$:
+
+$$
+\mu = \frac{k}{2(1+\nu)},\qquad \lambda=\frac{k\nu}{(1+\nu)(1-2\nu)}
+$$

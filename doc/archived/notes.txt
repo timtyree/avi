@@ -1,0 +1,11 @@
+#Gini coefficient measure with a softmax threshold 
+#for when the moving_gini(K,taumax), which takes a running window/measure of length taumax and returns a measure of dispersion from 0 to 1.
+#make a softmax function cut off at user defined values
+#Application: to model/compute next time step size given previous time step size.  It would suffice to have synchronous explicit updates followed by updates by implicit optimization.
+#Spiral tip application: locations of concentrated time step resolution may give a high-res view of a spiral filament.
+
+#could I use haptics to poke vorticity into a spiral filament??
+#could electrophysiologists?
+
+mesh.nodal_space_boundary
+mesh.nodal_space_bulk

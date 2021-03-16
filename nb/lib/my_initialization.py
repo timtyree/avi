@@ -8,7 +8,7 @@
 # %load_ext autoreload
 # %autoreload 2
 
-darkmode = False
+darkmode = True
 
 import numpy as np, pandas as pd, matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D  
