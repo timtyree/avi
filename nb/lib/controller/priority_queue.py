@@ -2,7 +2,7 @@ import numpy as np
 # Timothy Tyree
 # 12.4.2020
 
-#Ready-Made Example 
+#Ready-Made Example
 
 from queue import PriorityQueue
 
@@ -20,4 +20,4 @@ while not q.empty():
 
 # the following parallel priority queue is very fast, but it makes use of bucket heaps, which I haven't found a ready-made soln for...
 # "A parallel priority queue with fast updates for GPU architectures" by John Iacono et al. (2019)
-# `parallel priority queue.pdf` <<prereq: `bucket heap paper.pdf`, which looks complicated>>
+# `parallel priority queue.pdf` <<prereq?: `bucket heap paper.pdf`, which looks complicated>>
